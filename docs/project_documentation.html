@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI_NEWS Project Documentation</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --card: #111827;
+      --muted: #9ca3af;
+      --text: #e5e7eb;
+      --accent: #06b6d4;
+      --primary: #22c55e;
+      --border: #1f2937;
+    }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; }
+    .container { max-width: 1100px; margin: 32px auto; padding: 0 16px; }
+    .banner { background: linear-gradient(90deg, var(--primary), var(--accent)); padding: 14px 18px; border-radius: 12px; font-weight: 700; color: #07323a; color: #052e2b; box-shadow: 0 10px 30px rgba(6, 182, 212, 0.15); }
+    h1 { margin: 18px 0 4px; font-size: 32px; }
+    h2 { margin: 28px 0 8px; font-size: 24px; color: #c7f9cc; }
+    h3 { margin: 18px 0 8px; font-size: 20px; color: #a5f3fc; }
+    p { line-height: 1.75; color: var(--text); }
+    .muted { color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 8px 28px rgba(2,6,23,0.35); }
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #0a0f1a; color: #e5e7eb; }
+    pre { border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow: auto; }
+    a { color: #7dd3fc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .small { font-size: 12px; }
+    .kbd { background: #0a0f1a; border: 1px solid #1f2937; border-bottom-width: 3px; padding: 2px 6px; border-radius: 6px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
+  <meta name="description" content="Documentation for the AI_NEWS CrewAI project: architecture, flow, data contracts, runbook, and troubleshooting." />
+</head>
+<body>
+  <div class="container">
+    <div class="banner">AI_NEWS • Project Documentation</div>
+
+    <h1>Overview</h1>
+    <div class="card">
+      <p>
+        AI_NEWS is a CrewAI-powered pipeline that researches AI-in-health topics, summarizes findings by subtopic,
+        and produces a styled HTML newsletter. A Streamlit app provides an interactive view with a main summary,
+        clickable subtopics, per-topic summaries with links, and a final downloadable newsletter.
+      </p>
+      <p class="muted small">Repository root: <code>/Users/sankar/sankar/courses/agentic-ai/crew_basics_and_prompting/AI_NEWS</code></p>
+    </div>
+
+    <h2>End-to-End Flow</h2>
+    <div class="card">
+      <div class="mermaid">
+        flowchart TD
+          A[User] -->|Run Crew| B[Assignment.crew]
+          B --> C[fetch_ai_news (research_assistant)]
+          C -->|FetchResult JSON → results/news.md| D[summarize_ai_news (editor_assistant)]
+          D -->|SummariesOutput JSON → results/summaries.md| E[draft_html_newsletter (chief_editor)]
+          E -->|draft.html| F[finalize_html_newsletter (judge_editor)]
+          F -->|newsletter.html| G[Streamlit App]
+          G -->|Preview + Download| A
+      </div>
+    </div>
+
+    <h2>Agents and Tasks</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Agents (config/agents.yaml)</h3>
+        <ul>
+          <li><code>research_assistant</code>: Web research</li>
+          <li><code>editor_assistant</code>: Per-topic summaries</li>
+          <li><code>chief_editor</code>: Drafts HTML newsletter</li>
+          <li><code>judge_editor</code>: Finalizes HTML newsletter</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Tasks (config/tasks.yaml)</h3>
+        <ul>
+          <li><code>fetch_ai_news</code> → <code>results/news.md</code> (JSON)</li>
+          <li><code>summarize_ai_news</code> → <code>results/summaries.md</code> (JSON)</li>
+          <li><code>draft_html_newsletter</code> → <code>results/draft.html</code></li>
+          <li><code>finalize_html_newsletter</code> → <code>results/newsletter.html</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Data Contracts (Pydantic)</h2>
+    <div class="card">
+      <div class="mermaid">
+        classDiagram
+          class NewsItem {
+            +str title
+            +str url
+            +str? publish_date
+            +str? snippet
+          }
+          class TopicItems {
+            +str topic
+            +List~NewsItem~ items
+          }
+          class FetchResult {
+            +List~TopicItems~ topics
+          }
+          class TopicSummary {
+            +str topic
+            +str summary
+            +List~str~ bullets
+          }
+          class SummariesOutput {
+            +str overview
+            +List~TopicSummary~ topics
+          }
+          FetchResult --> TopicItems
+          TopicItems --> NewsItem
+          SummariesOutput --> TopicSummary
+      </div>
+      <p class="small muted">Source: <code>src/assignment/schemas.py</code>. The crew enforces these via <code>output_pydantic</code> in <code>src/assignment/crew.py</code>.</p>
+    </div>
+
+    <h2>Streamlit UI Flow</h2>
+    <div class="card">
+      <div class="mermaid">
+        flowchart LR
+          S[Streamlit App] -->|Load| N[results/news.md JSON]
+          S -->|Load| SUM[results/summaries.md JSON]
+          S -->|Load| H[results/newsletter.html]
+          SUM -->|overview| O[Main Summary]
+          SUM -->|topics| T[Subtopics]
+          T -->|Select| R[Topic Summary + Links]
+          H -->|themed| P[Preview + Download]
+      </div>
+      <ul>
+        <li>Sidebar: Run button and controlled subtopic selector (canonical order)</li>
+        <li>Main: Top overview (prefers HTML “Overview/Executive Summary”); right panel shows selected topic</li>
+        <li>Links: Per-topic “Further reading” at the bottom of the summary</li>
+      </ul>
+    </div>
+
+    <h2>Runbook</h2>
+    <div class="card">
+      <h3>Using uv (recommended)</h3>
+      <pre><code>cd "/Users/sankar/sankar/courses/agentic-ai/crew_basics_and_prompting/AI_NEWS"
+uv sync
+export SERPER_API_KEY="&lt;your_key&gt;"
+uv run python -m assignment.main
+uv run streamlit run streamlit_app.py</code></pre>
+
+      <h3>Plain venv</h3>
+      <pre><code>python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+export SERPER_API_KEY="&lt;your_key&gt;"
+python -m assignment.main
+streamlit run streamlit_app.py</code></pre>
+
+      <p class="small muted">If uv reports an active venv conflict, use <code>uv run --active ...</code> or <span class="kbd">deactivate</span> the other venv and re-activate this project’s <code>.venv</code>.</p>
+    </div>
+
+    <h2>Troubleshooting</h2>
+    <div class="card">
+      <ul>
+        <li><b>JSON serialization</b>: Use <code>str</code> for URLs (not <code>HttpUrl</code>) in Pydantic</li>
+        <li><b>Union types</b>: Avoid PEP 604 unions; prefer <code>Optional[str]</code></li>
+        <li><b>Short overview in app</b>: App now prefers HTML overview; ensure newsletter has <code>&lt;h2&gt;Overview&lt;/h2&gt;</code> or <em>Executive Summary</em></li>
+        <li><b>References per topic</b>: <code>tasks.yaml</code> requires ≥5 items per topic and ≥5 links in summaries</li>
+      </ul>
+    </div>
+
+    <h2>Key Files</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <ul>
+          <li><code>src/assignment/crew.py</code></li>
+          <li><code>src/assignment/schemas.py</code></li>
+          <li><code>src/assignment/config/agents.yaml</code></li>
+          <li><code>src/assignment/config/tasks.yaml</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul>
+          <li><code>results/news.md</code>, <code>results/summaries.md</code></li>
+          <li><code>results/draft.html</code>, <code>results/newsletter.html</code></li>
+          <li><code>streamlit_app.py</code></li>
+          <li><code>docs/architecture.md</code>, <code>docs/project_documentation.html</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="muted small">Generated by the documentation task. Mermaid diagrams render client-side via CDN.</p>
+  </div>
+</body>
+</html>
+
+

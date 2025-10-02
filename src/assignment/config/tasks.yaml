@@ -1,0 +1,49 @@
+fetch_ai_news:
+  description: >
+    Search the web for recent AI agent news focused on cancer care topics:
+    (1) Research & Prevention, (2) Early Detection and Diagnosis,
+    (3) Drug Discovery and Development, (4) Treatment Methods,
+    (5) Precision Oncology.
+    Return STRICT JSON matching the FetchResult schema:
+    {"topics": [{"topic": one of the above topic names, "items": [{"title": str, "url": str, "publish_date": str, "snippet": str}]}]}
+    IMPORTANT: Include at least 5 items per topic (≥25 total).
+  expected_output: >
+    Valid JSON per FetchResult with ≥5 items per topic (≥25 total overall).
+  agent: research_assistant
+
+summarize_ai_news:
+  description: >
+    Review fetched results and produce STRICT JSON matching SummariesOutput:
+    {"overview": str, "topics": [{"topic": one of the topic names, "summary": str (300-500 words), "bullets": [2–4 short bullets]}]}
+    Each topic must include a "Further reading" list with ≥5 source links (from its items).
+
+  expected_output: >
+    Valid JSON per SummariesOutput with an overview and all topics filled.
+  agent: editor_assistant
+
+
+draft_html_newsletter:
+  description: >
+    Turn the AI agent news summary into a well-formatted HTML newsletter.
+    Include headers, sections, and ensure mobile readability.
+    Add some design and attractive aspects to the HTML page, giving it an aesthetic and catchy look.
+  expected_output: >
+    A complete HTML document styled as a newsletter with sections for summary, highlights, and featured items.
+  agent: chief_editor
+
+finalize_html_newsletter:
+  description: >
+    Proofread and refine the HTML newsletter with an emphasis on depth and clarity.
+    Expand the main overview to 180–250 words that synthesizes the week’s themes.
+    For each subtopic section, expand the summary to 140–200 words, followed by
+    2–4 concise bullet highlights. Improve transitions, ensure consistent heading
+    levels, and apply accessible, mobile-friendly formatting.
+    Keep all source links, moving them to the bottom of each subtopic section
+    under a "Further reading" list. Add a subject line and greeting + ending message.
+  expected_output: >
+    Final, polished HTML newsletter that includes:
+    - A 180–250 word overview at the top
+    - One section per subtopic with 140–200 word summaries and 2–4 bullets
+    - A "Further reading" list under each subtopic with the links
+    - Consistent headings, mobile-friendly layout, subject line, greeting and sign-off
+  agent: judge_editor
