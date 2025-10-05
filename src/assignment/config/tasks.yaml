@@ -16,9 +16,10 @@ summarize_ai_news:
     Review fetched results and produce STRICT JSON matching SummariesOutput:
     {"overview": str, "topics": [{"topic": one of the topic names, "summary": str (300-500 words), "bullets": [2–4 short bullets]}]}
     Each topic must include a "Further reading" list with ≥5 source links (from its items).
+    Editorialize the content with insights on implications for Biopharma and health systems.
 
   expected_output: >
-    Valid JSON per SummariesOutput with an overview and all topics filled.
+    Valid JSON per SummariesOutput with an overview and all topics filled, editorialized for Biopharma and health systems audience.
   agent: editor_assistant
 
 

@@ -11,7 +11,7 @@ flowchart TD
     A[User] -->|Run Crew| B[Assignment.crew]
     B --> C[fetch_ai_news (research_assistant)]
     C -->|FetchResult JSON → results/news.md| D[summarize_ai_news (editor_assistant)]
-    D -->|SummariesOutput JSON → results/summaries.md| E[draft_html_newsletter (chief_editor)]
+    D -->|SummariesOutput JSON → results/editorial.md| E[draft_html_newsletter (chief_editor)]
     E -->|draft.html| F[finalize_html_newsletter (judge_editor)]
     F -->|newsletter.html| G[Streamlit App]
     G -->|Preview + Download| A
@@ -26,7 +26,7 @@ flowchart TD
 
 - Tasks (from `src/assignment/config/tasks.yaml`):
   - `fetch_ai_news` → outputs `results/news.md` as FetchResult JSON
-  - `summarize_ai_news` → outputs `results/summaries.md` as SummariesOutput JSON
+  - `summarize_ai_news` → outputs `results/editorial.md` as SummariesOutput JSON
   - `draft_html_newsletter` → `results/draft.html`
   - `finalize_html_newsletter` → `results/newsletter.html`
 
@@ -85,7 +85,7 @@ File: `streamlit_app.py`
 ```mermaid
 flowchart LR
     S[Streamlit App] -->|Load| N[results/news.md JSON]
-    S -->|Load| SUM[results/summaries.md JSON]
+    S -->|Load| SUM[results/editorial.md JSON]
     S -->|Load| H[results/newsletter.html]
     SUM -->|overview| O[Main Summary]
     SUM -->|topics| T[Subtopics]
@@ -127,7 +127,7 @@ streamlit run streamlit_app.py
 - `src/assignment/schemas.py`
 - `src/assignment/config/agents.yaml`
 - `src/assignment/config/tasks.yaml`
-- `results/news.md`, `results/summaries.md`
+- `results/news.md`, `results/editorial.md`
 - `results/draft.html`, `results/newsletter.html`
 - `streamlit_app.py`
 - `docs/architecture.md`, `docs/project_documentation.md`

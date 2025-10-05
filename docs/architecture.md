@@ -25,7 +25,7 @@ flowchart TD
 
 - Tasks (from `src/assignment/config/tasks.yaml`):
   - `fetch_ai_news` → outputs `results/news.md` as FetchResult JSON
-  - `summarize_ai_news` → outputs `results/summaries.md` as SummariesOutput JSON
+  - `summarize_ai_news` → outputs `results/editorial.md` as SummariesOutput JSON
   - `draft_html_newsletter` → `results/draft.html`
   - `finalize_html_newsletter` → `results/newsletter.html`
 
@@ -67,7 +67,7 @@ classDiagram
 `src/assignment/crew.py`
 
 - `fetch_ai_news` uses `output_pydantic=FetchResult` and saves to `results/news.md`
-- `summarize_ai_news` uses `output_pydantic=SummariesOutput` and saves to `results/summaries.md`
+- `summarize_ai_news` uses `output_pydantic=SummariesOutput` and saves to `results/editorial.md`
 - Downstream tasks build `draft.html` and `newsletter.html`
 
 ```mermaid
@@ -94,7 +94,7 @@ File: `streamlit_app.py`
 flowchart LR
     S[Streamlit App]
     S -->|Load| N[results/news.md JSON]
-    S -->|Load| SUM[results/summaries.md JSON]
+    S -->|Load| SUM[results/editorial.md JSON]
     S -->|Load| H[results/newsletter.html]
     SUM -->|overview| O[Main Summary]
     SUM -->|topics| T[Subtopics]

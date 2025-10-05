@@ -58,7 +58,7 @@
           A[User] -->|Run Crew| B[Assignment.crew]
           B --> C[fetch_ai_news (research_assistant)]
           C -->|FetchResult JSON → results/news.md| D[summarize_ai_news (editor_assistant)]
-          D -->|SummariesOutput JSON → results/summaries.md| E[draft_html_newsletter (chief_editor)]
+          D -->|SummariesOutput JSON → results/editorial.md| E[draft_html_newsletter (chief_editor)]
           E -->|draft.html| F[finalize_html_newsletter (judge_editor)]
           F -->|newsletter.html| G[Streamlit App]
           G -->|Preview + Download| A
@@ -80,7 +80,7 @@
         <h3>Tasks (config/tasks.yaml)</h3>
         <ul>
           <li><code>fetch_ai_news</code> → <code>results/news.md</code> (JSON)</li>
-          <li><code>summarize_ai_news</code> → <code>results/summaries.md</code> (JSON)</li>
+          <li><code>summarize_ai_news</code> → <code>results/editorial.md</code> (JSON)</li>
           <li><code>draft_html_newsletter</code> → <code>results/draft.html</code></li>
           <li><code>finalize_html_newsletter</code> → <code>results/newsletter.html</code></li>
         </ul>
@@ -125,7 +125,7 @@
       <div class="mermaid">
         flowchart LR
           S[Streamlit App] -->|Load| N[results/news.md JSON]
-          S -->|Load| SUM[results/summaries.md JSON]
+          S -->|Load| SUM[results/editorial.md JSON]
           S -->|Load| H[results/newsletter.html]
           SUM -->|overview| O[Main Summary]
           SUM -->|topics| T[Subtopics]
@@ -180,7 +180,7 @@ streamlit run streamlit_app.py</code></pre>
       </div>
       <div class="card">
         <ul>
-          <li><code>results/news.md</code>, <code>results/summaries.md</code></li>
+          <li><code>results/news.md</code>, <code>results/editorial.md</code></li>
           <li><code>results/draft.html</code>, <code>results/newsletter.html</code></li>
           <li><code>streamlit_app.py</code></li>
           <li><code>docs/architecture.md</code>, <code>docs/project_documentation.html</code></li>

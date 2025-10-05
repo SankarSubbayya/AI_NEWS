@@ -82,7 +82,7 @@ class Assignment():
         return Task(
             config=self.tasks_config['summarize_ai_news'], # type: ignore[index]
             context=[self.fetch_ai_news()],
-            output_file='results/summaries.md',
+            output_file='results/editorial.md',
             output_pydantic=SummariesOutput
         )
 

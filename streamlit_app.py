@@ -10,7 +10,7 @@ from assignment.main import run as run_crew
 RESULTS_DIR = Path(__file__).parent / "results"
 # Structured outputs (JSON text saved in .md files)
 NEWS_JSON = RESULTS_DIR / "news.md"
-SUMMARIES_JSON = RESULTS_DIR / "summaries.md"
+EDITORIAL_JSON = RESULTS_DIR / "editorial.md"
 # HTML artifacts
 DRAFT_HTML = RESULTS_DIR / "draft.html"
 FINAL_HTML = RESULTS_DIR / "newsletter.html"
@@ -129,7 +129,7 @@ def style_summary_html(html: str) -> str:
 
 
 st.set_page_config(page_title="AI Agent News", layout="wide")
-st.title("AI Agent News - Crew Runner")
+st.title("AI Agent News - Cancer Care")
 
 # Subtle colorful theming
 st.markdown(
@@ -173,7 +173,7 @@ col = st.container()
 
 with col:
     # Try to render structured summaries first
-    summaries_json = read_json_file(SUMMARIES_JSON)
+    summaries_json = read_json_file(EDITORIAL_JSON)
     fetch_json = read_json_file(NEWS_JSON)
 
     # Load final HTML and parse sections for richer summaries
@@ -220,15 +220,15 @@ with col:
         else:
             st.info("Run the crew to populate subtopics.")
 
-    # Show main summary at the top (prefer richer HTML Overview)
-    st.subheader("Main Summary")
+    # Show main editorial at the top (prefer richer HTML Overview)
+    st.subheader("Main Editorial")
     st.markdown('<div class="card">', unsafe_allow_html=True)
     if overview_html:
         st.components.v1.html(style_summary_html(overview_html), height=620, scrolling=True)
     elif overview_text:
         st.write(overview_text)
     else:
-        st.info("Run the crew to populate the overview summary.")
+        st.info("Run the crew to populate the overview editorial.")
     st.markdown('</div>', unsafe_allow_html=True)
 
     # Selected topic summary (pull selection from sidebar)
@@ -243,7 +243,7 @@ with col:
         if t:
             summary_text = t.get("summary") or ""
             bullets = t.get("bullets") or []
-            st.subheader(f"Summary: {selected}")
+            st.subheader(f"Editorial: {selected}")
             st.markdown('<div class="card">', unsafe_allow_html=True)
             # Prefer HTML section content for the selected topic
             html_body = next((body for (title, body) in html_sections if title == selected), None)
@@ -255,7 +255,7 @@ with col:
                 st.markdown("\n".join([f"- {b}" for b in bullets]))
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # Links for this topic at the bottom of the summary
+            # Links for this topic at the bottom of the editorial
             topic_to_items = {}
             if fetch_json and isinstance(fetch_json, dict):
                 for ft in fetch_json.get("topics", []):
